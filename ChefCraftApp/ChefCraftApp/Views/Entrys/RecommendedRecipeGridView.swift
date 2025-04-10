@@ -12,6 +12,7 @@ struct RecommendedRecipeGridView: View {
     let columns = [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())]
     @Binding var selectedRecipe: Recipe?
     @Binding var showPopup: Bool
+    @Binding var showFullScreenCover: Bool
     var body: some View {
         ScrollView {
             LazyVGrid(columns: columns) {
@@ -20,6 +21,11 @@ struct RecommendedRecipeGridView: View {
                         selectedRecipe = recipe
                         showPopup = true
                     })
+                }
+                Button(action: {
+                    showFullScreenCover = true
+                }){
+                    Text("レシピをもっと見る・・・")
                 }
             }
         }
@@ -32,18 +38,14 @@ struct RecommendedRecipeGridView: View {
         .cornerRadius(12)
     }
 }
-
-let recipe1 = Recipe(name: "卵焼き", iconName: "", time: "出汁と卵を解いて丁寧に巻いて焼き上げたレシピです。", difficulty: "15分", tryCount: 10, description: "特になし")
-let recipe2 = Recipe(name: "スクランブルエッグ", iconName: "", time: "5分", difficulty: "easy", tryCount: 5, description: "特になし")
-
-//#Preview {
-//    RecommendedRecipeGridView(selectedRecipe: <#Binding<Recipe?>#>, showPopup: <#Binding<Bool>#>)
-//}
-
+#Preview {
+    RecommendedRecipeGridView(selectedRecipe: .constant(Recipe()), showPopup: .constant(false), showFullScreenCover: .constant(false))
+}
 
 struct RecipeIconView: View {
     var recipe: Recipe
     var size: CGFloat = 150
+    var fontsize: CGFloat = 20
     let onTap: () -> Void
     var body: some View {
         VStack {
@@ -59,7 +61,7 @@ struct RecipeIconView: View {
                 }
             }
             Text(recipe.name)
-                .font(.system(size: 20))
+                .font(.system(size: fontsize))
         }
         .frame(width: size, height: size)
         .padding()
