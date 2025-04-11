@@ -45,7 +45,7 @@ struct RecipeListView: View {
                                 .padding(.trailing,30)
                         }
                     }
-                    RecipeIntroduceView(recipe: recipe, playerData: PlayerData(),showPopup: $showPopup, showRecipeInProgress: $showRecipeInProgress)
+                    RecipeIntroduceView(recipe: recipe, playerData: PlayerData(),isPresented: $showPopup, showRecipeInProgress: $showRecipeInProgress)
                         .padding()
                         .presentationCompactAdaptation(.fullScreenCover)
                 }

@@ -9,9 +9,12 @@ import SwiftUI
 
 let recipes: [Recipe] = [recipe1, recipe2, recipe3, recipe4,recipe5, recipe6, recipe7, recipe8, recipe9, recipe10, recipe11, recipe12, recipe13, recipe14, recipe15]
 
-struct RecipeGropingListView: View {@Environment(\.presentationMode) var presentationMode:Binding<PresentationMode>
+struct RecipeGropingListView: View {
+    @Environment(\.presentationMode) var presentationMode:Binding<PresentationMode>
     
     @State var  groupedRecipes: [SkillType: [Recipe]] = [:]
+    @Binding var shouldDismissToEntry: Bool
+    @State var showRecipeInProgress = false
     
     enum SectionInfo: String, CaseIterable, Identifiable {
         case skill, difficulty, category
@@ -20,7 +23,6 @@ struct RecipeGropingListView: View {@Environment(\.presentationMode) var present
 
     @State private var selectedSection: SectionInfo = .skill
     @Binding var showPopup: Bool
-    @State var showRecipeInProgress: Bool = false
     @State var selectedRecipe: Recipe?
     @State private var scale: CGFloat = 0.8 // 初期は小さめ
     var body: some View {
@@ -51,23 +53,17 @@ struct RecipeGropingListView: View {@Environment(\.presentationMode) var present
                 switch selectedSection {
                 case .skill:
                     SkillSectionView(showPopup: $showPopup, selectedRecipe:$selectedRecipe)
-                        .onChange(of: showPopup) { value in
-                            scale = 1.2 // 表示時にやや大きく
-                                                    withAnimation(.spring(response: 0.4, dampingFraction: 0.6)) {
-                                                        scale = 1.0 // そのあとバウンスして元の大きさへ
-                                                    }
-                        }
                 case .category:
-                    CategorySectionView()
+                    CategorySectionView(showPopup: $showPopup, selectedRecipe:$selectedRecipe)
                 case .difficulty:
-                    DifficultySectionView()
+                    DifficultySectionView(showPopup: $showPopup, selectedRecipe:$selectedRecipe)
                 }
                 Spacer()
             }
             if showPopup, let selectedRecipe = selectedRecipe {
                 Color.black.opacity(0.4)
                     .edgesIgnoringSafeArea(.all)
-                            RecipeIntroduceView(recipe: selectedRecipe, playerData: PlayerData(),showPopup: $showPopup,showRecipeInProgress: $showRecipeInProgress)
+                RecipeIntroduceView(recipe: selectedRecipe, playerData: PlayerData(), isPresented: $showPopup, showRecipeInProgress: $showRecipeInProgress)
                                 .padding()
                                 .background(Color.white) // 背景白にする場合
                                 .overlay(
@@ -80,15 +76,21 @@ struct RecipeGropingListView: View {@Environment(\.presentationMode) var present
             }
         }
         .fullScreenCover(isPresented: $showRecipeInProgress) {
-            RecipeInstructionView(recipe: selectedRecipe!, playerData: PlayerData())
+            RecipeInstructionView(recipe: selectedRecipe!, playerData: PlayerData(), shouldDismissToEntry: $shouldDismissToEntry)
                 .scaleEffect(scale)
+        }
+        .onChange(of: showPopup) { value in
+            scale = 1.2 // 表示時にやや大きく
+            withAnimation(.spring(response: 0.4, dampingFraction: 0.6)) {
+                scale = 1.0 // そのあとバウンスして元の大きさへ
+            }
         }
         .zIndex(1) // 他より前面に出す
     }
 }
 
 #Preview {
-    RecipeGropingListView(showPopup: .constant(false))
+    RecipeGropingListView(shouldDismissToEntry: .constant(false), showPopup: .constant(false))
 }
 
 struct SkillSectionView: View {
@@ -125,16 +127,28 @@ struct SkillSectionView: View {
 
 struct CategorySectionView: View {
     var groupedRecipes = Dictionary(grouping: recipes){ $0.category}
+    let columns = [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())]
+    @Binding var showPopup: Bool
+    @Binding var selectedRecipe: Recipe?
     var body: some View {
-        VStack {
-            ForEach(Category.allCases, id:\.self) {
-                category in
-                if let sectionRecipe =  groupedRecipes[category], !sectionRecipe.isEmpty {
-                    Section(header: Text(category.rawValue)
-                        .font(.title)
-                    ){
-                        ForEach(sectionRecipe){ recipe in
-                            Text(recipe.name)
+        ZStack {
+            ScrollView {
+                VStack(alignment:.leading) {
+                    ForEach(Category.allCases, id:\.self) {
+                        skill in
+                        if let sectionRecipe =  groupedRecipes[skill], !sectionRecipe.isEmpty {
+                            Section(header:
+                                        SectionHeaderView(sectionTitle: skill.rawValue)
+                            ){
+                                LazyVGrid(columns: columns) {
+                                    ForEach(sectionRecipe){ recipe in
+                                        RecipeIconView(recipe: recipe,size: 80, fontsize:10, onTap: {
+                                            showPopup = true
+                                            selectedRecipe = recipe
+                                        })
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -145,16 +159,28 @@ struct CategorySectionView: View {
 
 struct DifficultySectionView: View {
     var groupedRecipes = Dictionary(grouping: recipes){ $0.difficulty}
+    let columns = [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())]
+    @Binding var showPopup: Bool
+    @Binding var selectedRecipe: Recipe?
     var body: some View {
-        VStack {
-            ForEach(Difficulty.allCases, id:\.self) {
-                difficulty in
-                if let sectionRecipe =  groupedRecipes[difficulty], !sectionRecipe.isEmpty {
-                    Section(header: Text(difficulty.rawValue)
-                        .font(.title)
-                    ){
-                        ForEach(sectionRecipe){ recipe in
-                            Text(recipe.name)
+        ZStack {
+            ScrollView {
+                VStack(alignment:.leading) {
+                    ForEach(Difficulty.allCases, id:\.self) {
+                        skill in
+                        if let sectionRecipe =  groupedRecipes[skill], !sectionRecipe.isEmpty {
+                            Section(header:
+                                        SectionHeaderView(sectionTitle: skill.rawValue)
+                            ){
+                                LazyVGrid(columns: columns) {
+                                    ForEach(sectionRecipe){ recipe in
+                                        RecipeIconView(recipe: recipe,size: 80, fontsize:10, onTap: {
+                                            showPopup = true
+                                            selectedRecipe = recipe
+                                        })
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -162,6 +188,8 @@ struct DifficultySectionView: View {
         }
     }
 }
+
+
 
 struct SectionHeaderView: View {
     var sectionTitle: String

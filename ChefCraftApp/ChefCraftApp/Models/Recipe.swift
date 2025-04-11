@@ -32,11 +32,17 @@ struct Recipe:Identifiable, Codable {
         self.time = time
         self.tryCount = 0
         self.description = description
-        
+        self.instructions = ["卵とボールを用意する","フライパンに油をしいてあたためておく","卵を割ってボールの中でよく溶く", "あたたかいフライパンに溶き卵を少しずつ流し入れて巻く", "すべての溶き卵を流し入れて巻き終わったら完成"]
         self.skillType = skillType
         self.difficulty = difficulty
         self.category = category
     }
+    
+//    卵を割る - 卵を器に割り入れて、箸やフォークでよくかき混ぜてね。
+//    フライパンを温める - 中火にして、フライパンをあたためる。油をひいて、キッチンペーパーで全体に広げよう。
+//    卵を流し入れる - フライパンに卵を少しずつ流し入れ、全体に広げてね。卵が固まる前に巻き始めよう！
+//    卵を巻く - 卵が固まり始めたら、端からフライ返しで少しずつ巻いていくよ。
+//    最後まで巻いて完成 - 全部巻き終わったら、お皿に盛り付けて完成！お好みで醤油をかけて食べてね。
     
     init () {
         self.name = "カレー"

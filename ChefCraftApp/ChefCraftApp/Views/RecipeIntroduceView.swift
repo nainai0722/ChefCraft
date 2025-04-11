@@ -13,7 +13,7 @@ struct RecipeIntroduceView: View {
     var playerData: PlayerData
     @State var isShowingPopover: Bool = false
     @State var instructionVisible: Bool = false
-    @Binding var showPopup: Bool
+    @Binding var isPresented: Bool
     @Binding var showRecipeInProgress: Bool
     var body: some View {
         VStack(alignment: .leading){
@@ -39,11 +39,11 @@ struct RecipeIntroduceView: View {
             Button(action:{
                 instructionVisible.toggle()
                 withAnimation {
-                    showPopup = false
+                    isPresented = false
                 }
                 showRecipeInProgress = true
                 // 挑戦中のレシピをUserDefaultsに一時保存する
-                save()
+                saveUserDefaults()
             }){
                 Text("このレシピに挑戦する")
                     .titleStyle(color: .red)
@@ -100,7 +100,7 @@ struct RecipeIntroduceView: View {
         return 10.00
     }
     
-    func save() {
+    func saveUserDefaults() {
         // 保存
         if let encoded = try? JSONEncoder().encode(recipe) {
             UserDefaults.standard.set(encoded, forKey: "currentRecipe")
@@ -111,11 +111,10 @@ struct RecipeIntroduceView: View {
            let savedRecipe = try? JSONDecoder().decode(Recipe.self, from: data) {
             // savedRecipe を使う
         }
-
     }
 }
 
 #Preview {
-    RecipeIntroduceView(recipe: Recipe(), playerData: PlayerData(),showPopup: .constant(false), showRecipeInProgress: .constant(false))
+    RecipeIntroduceView(recipe: Recipe(), playerData: PlayerData(),isPresented: .constant(false), showRecipeInProgress: .constant(false))
 }
 

@@ -8,10 +8,10 @@
 import SwiftUI
 
 struct RecommendedRecipeGridView: View {
-    var recipes: [Recipe] = [recipe1, recipe2]
+    var recipes: [Recipe] = [recipe1, recipe2, recipe3, recipe4, recipe5]
     let columns = [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())]
     @Binding var selectedRecipe: Recipe?
-    @Binding var showPopup: Bool
+    @Binding var isPresented: Bool
     @Binding var showFullScreenCover: Bool
     var body: some View {
         ScrollView {
@@ -19,7 +19,7 @@ struct RecommendedRecipeGridView: View {
                 ForEach(recipes) { recipe in
                     RecipeIconView(recipe: recipe, size: 80, onTap: {
                         selectedRecipe = recipe
-                        showPopup = true
+                        isPresented = true
                     })
                 }
                 Button(action: {
@@ -39,7 +39,7 @@ struct RecommendedRecipeGridView: View {
     }
 }
 #Preview {
-    RecommendedRecipeGridView(selectedRecipe: .constant(Recipe()), showPopup: .constant(false), showFullScreenCover: .constant(false))
+    RecommendedRecipeGridView(selectedRecipe: .constant(Recipe()), isPresented: .constant(false), showFullScreenCover: .constant(false))
 }
 
 struct RecipeIconView: View {
